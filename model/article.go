@@ -3,7 +3,6 @@ package model
 import (
 	"GinHello/initDB"
 	"errors"
-	"log"
 )
 
 // Article 文章模型
@@ -13,60 +12,61 @@ type Article struct {
 	Content string `json:"content"`
 }
 
+// TableName 继承 TableName 接口，实现 gorm 对数据表名的指定
+// 否则 gorm 默认会去操作 articles
+func (article Article) TableName() string {
+	return "article"
+}
+
 // Insert 插入文章
 func (article *Article) Insert() (int, error) {
-	sqlStr := "insert into article(type, content) values(?,?);"
-	result, err := initDB.DataBase.Exec(sqlStr, article.Type, article.Content)
-	if err != nil {
-		log.Println("文章添加失败", err.Error())
-		return -1, err
+	create := initDB.DB.Create(&article)
+	if create.Error != nil {
+		return -1, create.Error
 	}
-	id, e := result.LastInsertId()
-	return int(id), e
+	return article.Id, nil
 }
 
 // Update 更新文章
 func (article *Article) Update() error {
-	sqlStr := "update article set type = ?, content = ? where id = ?"
-	// 执行 sql
-	_, e := initDB.DataBase.Exec(sqlStr, article.Type, article.Content, article.Id)
-	if e != nil {
-		log.Println("更新失败：", e.Error())
-		return e
+	var a Article
+	// 先查询一条记录保存在模型变量 a 中
+	// 同：select * from article where (id = article.Id) limit 1
+	where := initDB.DB.Where("id = ?", article.Id).Take(&a)
+	if a.Id == 0 || where.Error != nil {
+		return errors.New("对象不存在或已被删除：" + where.Error.Error())
 	}
+
+	// 更新整体
+	// 同：update `article` set (`type` = article.Type), (`content` = article.Content)
+	//		where (`article`.`id` = article.Id)
+	save := initDB.DB.Save(article)
+	if save.Error != nil {
+		return save.Error
+	}
+
+	// 如果想更新 a 中的指定字段
+	// 同 UPDATE `article` SET `type` = 'kotlin'  WHERE `article`.`id` = a.id
+	//initDB.DB.Model(&a).Update("type", "kotlin")
+
 	return nil
 }
 
 // FindAll 查询所以文章
 func (article Article) FindAll() ([]Article, error) {
-	sqlStr := "select * from article;"
-	rows, e := initDB.DataBase.Query(sqlStr)
-	if e != nil {
-		log.Println("查询数据失败")
-		return nil, e
-	}
-
 	var articles []Article
-	for rows.Next() {
-		var a Article
-		if e := rows.Scan(&a.Id, &a.Type, &a.Content); e != nil {
-			log.Println("封装数据失败")
-			return nil, e
-		}
-		articles = append(articles, a)
+	find := initDB.DB.Find(&articles)
+	if find.Error != nil {
+		return nil, find.Error
 	}
 	return articles, nil
 }
 
 // FindById 通过 id 查找文章
 func (article Article) FindById() (Article, error) {
-	sqlStr := "select * from article where id=?;"
-	row := initDB.DataBase.QueryRow(sqlStr, article.Id)
-	if e := row.Scan(&article.Id, &article.Type, &article.Content); e != nil {
-		log.Println("封装数据失败", e.Error())
-		return article, e
-	}
-	return article, nil
+	// 以 article.Id 作为 where 查询的过滤条件。该方法仅适用于主键为 int 类型时
+	first := initDB.DB.First(&article, article.Id)
+	return article, first.Error
 }
 
 // DeleteOne 通过 id 删除文章
@@ -75,10 +75,10 @@ func (article Article) DeleteOne() error {
 	if e != nil || a.Id == 0 {
 		return errors.New("对象不存在或已被删除")
 	}
-	sqlStr := "delete from article where id = ?"
-	if _, e := initDB.DataBase.Exec(sqlStr, article.Id); e != nil {
-		log.Println("删除失败")
-		return e
+	// Delete 传的是值而不是指针，因为删除并不需要给对象赋值
+	del := initDB.DB.Delete(article, article.Id)
+	if del.Error != nil {
+		return del.Error
 	}
 	return nil
 }

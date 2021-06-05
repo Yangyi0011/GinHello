@@ -1,8 +1,8 @@
 package initDB
 
 import (
-	"database/sql"
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/jinzhu/gorm"
 	"log"
 )
 
@@ -22,18 +22,16 @@ const (
 )
 
 var (
-	// DataBase 数据库连接变量
-	DataBase *sql.DB
+	// DB 数据源连接变量
+	DB *gorm.DB
 )
 
 // 初始化数据源信息
 func init() {
 	var err error
 	dataSourceName := username + ":" + password + "@tcp(" + host + ":" + port + ")/" + dataBase
-	DataBase, err = sql.Open(driverName, dataSourceName)
+	DB, err = gorm.Open(driverName, dataSourceName)
 	if err != nil {
-		log.Panicln("DataBase connection error -> ", err.Error())
+		log.Panicln("Datasource connection error -> ", err.Error())
 	}
-	DataBase.SetMaxOpenConns(maxOpenConns)
-	DataBase.SetMaxIdleConns(maxIdleConns)
 }
