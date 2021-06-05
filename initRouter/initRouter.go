@@ -16,6 +16,7 @@ func init() {
 // InitRouter 初始化路由
 func InitRouter() *gin.Engine {
 	SwaggerRouter()
+	UserRouter()
 	ArticleRouter()
 	return router
 }

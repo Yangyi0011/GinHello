@@ -1,7 +1,12 @@
+GET http://localhost:8080/article
+Accept: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJ0b20iLCJleHAiOjE2MjI5Njk3OTIsImp0aSI6IjAiLCJpYXQiOjE2MjI4ODMzOTMsImlzcyI6ImdpbiBoZWxsbyIsIm5iZiI6MTYyMjg4MzM5NCwic3ViIjoibG9naW4ifQ.Br8UtINEQdV1BvB7X15lBMCp90oZ0rNFoViuYBo4R1g
+
+###
 POST http://localhost:8080/article
-Content-Type: application/json
+Accept: application/json
 
 {
-  "type": "python",
-  "content": "hello python"
+  "type": "php",
+  "content": "hello php"
 }
