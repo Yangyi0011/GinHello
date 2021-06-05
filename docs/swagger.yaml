@@ -1,0 +1,156 @@
+definitions:
+  model.Article:
+    properties:
+      content:
+        type: string
+      id:
+        type: integer
+      type:
+        type: string
+    type: object
+  model.Result:
+    properties:
+      code:
+        example: 0
+        type: integer
+      data:
+        type: object
+      message:
+        example: 请求信息
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: 1024569696@qq.com
+    name: yangyi
+  description: Gin swagger 示例项目
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  title: Gin swagger
+  version: "1.0"
+paths:
+  /article:
+    get:
+      consumes:
+      - application/json
+      description: 查询所有文章
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Result'
+      summary: 查询所有文章
+      tags:
+      - 文章管理
+    post:
+      consumes:
+      - application/json
+      description: 提交新的文章内容
+      parameters:
+      - description: 文章
+        in: body
+        name: article
+        required: true
+        schema:
+          $ref: '#/definitions/model.Article'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Result'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/model.Result'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.Result'
+      summary: 添加文章
+      tags:
+      - 文章管理
+    put:
+      consumes:
+      - application/json
+      description: 更新文章内容
+      parameters:
+      - description: 文章
+        in: body
+        name: article
+        required: true
+        schema:
+          $ref: '#/definitions/model.Article'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Result'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/model.Result'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.Result'
+      summary: 更新文章
+      tags:
+      - 文章管理
+  /article/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: 通过 id 删除指定文章
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Result'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.Result'
+      summary: 删除文章
+      tags:
+      - 文章管理
+    get:
+      consumes:
+      - application/json
+      description: 通过 id 查询指定文章
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Result'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.Result'
+      summary: 查询文章
+      tags:
+      - 文章管理
+swagger: "2.0"
